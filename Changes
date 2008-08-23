@@ -3,7 +3,9 @@ Revision history for DBIx-Class-RDBOHelpers
 0.01    23 Aug 2008
         First version, released on an unsuspecting world.
 
-0.02    xxx
+0.02    24 Aug 2008
+        * add {m2m}->{class} value to identify the class
+          that owns the m2m relationship.
 
 
 

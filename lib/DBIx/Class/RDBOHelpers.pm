@@ -4,10 +4,9 @@ use warnings;
 use strict;
 use parent 'DBIx::Class';
 use Carp;
+use Data::Dump qw( dump );
 
-#use Data::Dump qw( dump );
-
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -153,6 +152,7 @@ sub many_to_many {
         if exists $store->{$meth_name};
 
     my $attrs = {
+        class       => $class,
         method_name => $meth_name,
         rel_name    => $rel_name,    # the o2m relationship name
         map_to      => $map_to,      # i.e., foreign class method name
@@ -177,6 +177,8 @@ sub relationship_info {
     my $class    = shift;
     my $rel_name = shift;
     my $info     = $class->next::method($rel_name);
+
+    #carp dump $info;
 
     # if this is a m2m relname, construct hash ref of
     # m2m + foreign_relation info

@@ -21,6 +21,7 @@ is_deeply(
         class => "MyDBIC::Schema::CdTrackJoin",
         cond  => { "foreign.cdid" => "self.cdid" },
         m2m   => {
+            class         => "MyDBIC::Schema::Cd",
             foreign_class => "MyDBIC::Schema::Track",
             map_class     => "MyDBIC::Schema::CdTrackJoin",
             map_from      => "cdid",
@@ -47,6 +48,7 @@ is_deeply(
         class => "MyDBIC::Schema::CdTrackJoin",
         cond  => { "foreign.trackid" => "self.trackid" },
         m2m   => {
+            class         => "MyDBIC::Schema::Track",
             foreign_class => "MyDBIC::Schema::Cd",
             map_class     => "MyDBIC::Schema::CdTrackJoin",
             map_from      => "trackid",
