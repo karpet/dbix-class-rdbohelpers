@@ -6,7 +6,7 @@ use parent 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -174,11 +174,13 @@ represents a many-to-many relationship.
 =cut
 
 sub relationship_info {
-    my $class    = shift;
+    my $self     = shift;
     my $rel_name = shift;
-    my $info     = $class->next::method($rel_name);
+    my $info     = $self->next::method($rel_name);
 
-    #carp dump $info;
+    my $class = ref($self) ? ref($self) : $self;
+
+    #carp dump $self;
 
     # if this is a m2m relname, construct hash ref of
     # m2m + foreign_relation info
@@ -192,19 +194,45 @@ sub relationship_info {
         $m2m{map_class} = $info->{class};
 
         # find the missing map_from value
-        for my $foreign_rel ( $m2m{map_class}->relationships ) {
-            my $foreign_rel_info
-                = $m2m{map_class}->relationship_info($foreign_rel);
+        for my $map_rel ( $m2m{map_class}->relationships ) {
+            my $map_rel_info = $m2m{map_class}->relationship_info($map_rel);
 
-            if ( $foreign_rel_info->{class} eq $class ) {
-                my ( $foreign, $local ) = each %{ $foreign_rel_info->{cond} };
-                $foreign =~ s/^foreign\.//;
-                $m2m{map_from} = $foreign;
+#            warn
+#                "map_rel_info for class $class with map_class $m2m{map_class}"
+#                . dump $map_rel_info;
+
+            # gah. this is broken for Catalyst because each ResultSource
+            # is blessed into a Model::Schema::$moniker class
+            # so can't compare with 'eq'. must trust isa() instead.
+
+            if ( $class->isa( $map_rel_info->{class} ) ) {
+                for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
+                    my $local = $map_rel_info->{cond}->{$foreign};
+                    $local   =~ s/^self\.//;
+                    $foreign =~ s/^foreign\.//;
+                    $m2m{class_column} = $local;
+                    $m2m{map_from}     = $map_rel;
+                    last;    # only deal with first one defined.
+                }
+
             }
             else {
-                $m2m{foreign_class} = $foreign_rel_info->{class};
+                my $forclass = $map_rel_info->{class};
+
+                #warn "$class foreign class == $forclass";
+                $m2m{foreign_class} = $forclass;
+                for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
+                    my $local = $map_rel_info->{cond}->{$foreign};
+                    $local   =~ s/^self\.//;
+                    $foreign =~ s/^foreign\.//;
+                    $m2m{foreign_column} = $local;
+                    last;    # only deal with first one defined.
+                }
             }
+
         }
+
+        #carp "made m2m: " . dump \%m2m;
 
         # stash it away
         $info->{m2m} = \%m2m;

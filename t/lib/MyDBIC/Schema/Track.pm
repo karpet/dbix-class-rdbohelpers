@@ -10,7 +10,7 @@ __PACKAGE__->has_many(
 );
 __PACKAGE__->many_to_many(
     'cds' => 'track_cds',
-    'cdid'
+    'cd'
 );
 
 1;
