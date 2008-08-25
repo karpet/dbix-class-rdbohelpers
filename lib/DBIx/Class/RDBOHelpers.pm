@@ -243,6 +243,22 @@ sub relationship_info {
 
 }
 
+=head2 column_is_boolean( I<column_name> )
+
+Returns true if the column info for I<column_name> indicates it is a boolean
+type.
+
+=cut
+
+sub column_is_boolean {
+    my $self = shift;
+    my $col_name = shift;
+    croak "column_name required" unless defined $col_name;
+    
+    carp "column_is_boolean not yet supported";
+    return 0;
+}
+
 1;
 
 __END__
