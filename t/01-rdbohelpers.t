@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 22;
+use Test::More tests => 24;
 use lib 't/lib';
 use Data::Dump qw( dump );
 use DBICx::TestDatabase;
@@ -21,15 +21,17 @@ is_deeply(
         class => "MyDBIC::Schema::CdTrackJoin",
         cond  => { "foreign.cdid" => "self.cdid" },
         m2m   => {
-            class          => "MyDBIC::Schema::Cd",
-            class_column   => 'cdid',
-            foreign_class  => "MyDBIC::Schema::Track",
-            foreign_column => 'trackid',
-            map_class      => "MyDBIC::Schema::CdTrackJoin",
-            map_from       => "cd",
-            map_to         => "track",
-            method_name    => "tracks",
-            rel_name       => "cd_tracks",
+            class           => "MyDBIC::Schema::Cd",
+            class_column    => 'cdid',
+            foreign_class   => "MyDBIC::Schema::Track",
+            foreign_column  => 'trackid',
+            map_class       => "MyDBIC::Schema::CdTrackJoin",
+            map_from        => "cd",
+            map_from_column => "cdid",
+            map_to          => "track",
+            map_to_column   => "trackid",
+            method_name     => "tracks",
+            rel_name        => "cd_tracks",
         },
         source => "MyDBIC::Schema::CdTrackJoin",
     },
@@ -50,15 +52,17 @@ is_deeply(
         class => "MyDBIC::Schema::CdTrackJoin",
         cond  => { "foreign.trackid" => "self.trackid" },
         m2m   => {
-            class          => "MyDBIC::Schema::Track",
-            class_column   => 'trackid',
-            foreign_class  => "MyDBIC::Schema::Cd",
-            foreign_column => 'cdid',
-            map_class      => "MyDBIC::Schema::CdTrackJoin",
-            map_from       => "track",
-            map_to         => "cd",
-            method_name    => "cds",
-            rel_name       => "track_cds",
+            class           => "MyDBIC::Schema::Track",
+            class_column    => 'trackid',
+            foreign_class   => "MyDBIC::Schema::Cd",
+            foreign_column  => 'cdid',
+            map_class       => "MyDBIC::Schema::CdTrackJoin",
+            map_from        => "track",
+            map_from_column => "trackid",
+            map_to          => "cd",
+            map_to_column   => "cdid",
+            method_name     => "cds",
+            rel_name        => "track_cds",
         },
         source => "MyDBIC::Schema::CdTrackJoin",
     },
@@ -115,3 +119,8 @@ ok( my $cd1 = $schema->resultset('Cd')->find( { cdid => 1 } ), "fetch cd 1" );
 is( $cd1->has_related('tracks'), 1, $cd1->title . " has 1 tracks" );
 ok( my $cd2 = $schema->resultset('Cd')->find( { cdid => 2 } ), "fetch cd 2" );
 is( $cd2->has_related('tracks'), 2, $cd2->title . " has 2 tracks" );
+
+# column_is_boolean
+ok( $cd1->column_is_boolean('test_boolean'), "column_is_boolean");
+ok( !$cd1->column_is_boolean('artist'), "column_is_boolean");
+

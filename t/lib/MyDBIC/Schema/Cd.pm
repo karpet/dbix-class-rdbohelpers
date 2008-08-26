@@ -3,6 +3,14 @@ use base qw/DBIx::Class/;
 __PACKAGE__->load_components(qw/ RDBOHelpers Core /);
 __PACKAGE__->table('cd');
 __PACKAGE__->add_columns(qw/ cdid artist title /);
+__PACKAGE__->add_column(
+    'test_boolean' => {
+        data_type         => 'boolean',
+        is_auto_increment => 0,
+        is_nullable       => 1,
+        default_value     => 1,
+    }
+);
 __PACKAGE__->set_primary_key('cdid');
 __PACKAGE__->belongs_to( 'artist' => 'MyDBIC::Schema::Artist' );
 __PACKAGE__->has_many(

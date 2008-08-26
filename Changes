@@ -11,6 +11,12 @@ Revision history for DBIx-Class-RDBOHelpers
         * fix map_from/map_to and add class_column/foreign_column
           to relationship_info() for m2m
 
+0.04    25 Aug 2008
+        * oops. *_column was being assigned backwards in m2m.
+          added map_to_column and map_from_column as well.
+        * add new method column_is_boolean() to match RDBO::MoreHelpers
+
+
 
 
 

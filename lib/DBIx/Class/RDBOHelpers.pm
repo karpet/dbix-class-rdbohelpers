@@ -6,7 +6,7 @@ use parent 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -136,7 +136,7 @@ sub primary_key_value {
 
 __PACKAGE__->mk_classdata( ___my_m2m_metadata => {} );
 
-=head2 many_to_many( I<accessor_name>, <link_rel_name>, I<foreign_rel_name> [, I<attr>] )
+=head2 many_to_many( I<accessor_name>, I<link_rel_name>, I<foreign_rel_name> [, I<attr>] )
 
 Overrides the base Relationship::ManyToMany method of the same name,
 in order to cache the name of the m2m method. Call it
@@ -197,21 +197,29 @@ sub relationship_info {
         for my $map_rel ( $m2m{map_class}->relationships ) {
             my $map_rel_info = $m2m{map_class}->relationship_info($map_rel);
 
-#            warn
-#                "map_rel_info for class $class with map_class $m2m{map_class}"
-#                . dump $map_rel_info;
+          # warn
+          #     "map_rel_info for class $class with map_class $m2m{map_class}"
+          #     . dump $map_rel_info;
 
             # gah. this is broken for Catalyst because each ResultSource
             # is blessed into a Model::Schema::$moniker class
             # so can't compare with 'eq'. must trust isa() instead.
 
+            #warn "class->isa  $class -> $map_rel_info->{class}";
+
             if ( $class->isa( $map_rel_info->{class} ) ) {
+
+                #warn "isa == YES";
+
+                #warn "getting class_column and map_from for "
+                #    . dump $map_rel_info;
                 for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
                     my $local = $map_rel_info->{cond}->{$foreign};
                     $local   =~ s/^self\.//;
                     $foreign =~ s/^foreign\.//;
-                    $m2m{class_column} = $local;
-                    $m2m{map_from}     = $map_rel;
+                    $m2m{class_column}    = $foreign;
+                    $m2m{map_from}        = $map_rel;
+                    $m2m{map_from_column} = $local;
                     last;    # only deal with first one defined.
                 }
 
@@ -219,13 +227,15 @@ sub relationship_info {
             else {
                 my $forclass = $map_rel_info->{class};
 
-                #warn "$class foreign class == $forclass";
+                #warn "$class foreign class == $forclass"
+                #. dump $map_rel_info;
                 $m2m{foreign_class} = $forclass;
                 for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
                     my $local = $map_rel_info->{cond}->{$foreign};
                     $local   =~ s/^self\.//;
                     $foreign =~ s/^foreign\.//;
-                    $m2m{foreign_column} = $local;
+                    $m2m{foreign_column} = $foreign;
+                    $m2m{map_to_column}  = $local;
                     last;    # only deal with first one defined.
                 }
             }
@@ -251,11 +261,17 @@ type.
 =cut
 
 sub column_is_boolean {
-    my $self = shift;
+    my $self     = shift;
     my $col_name = shift;
     croak "column_name required" unless defined $col_name;
-    
-    carp "column_is_boolean not yet supported";
+
+    my $col_info = $self->column_info($col_name);
+    if ( exists $col_info->{data_type}
+        and $col_info->{data_type} eq 'boolean' )
+    {
+        return 1;
+    }
+
     return 0;
 }
 
