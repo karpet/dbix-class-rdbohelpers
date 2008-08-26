@@ -16,8 +16,6 @@ Revision history for DBIx-Class-RDBOHelpers
           added map_to_column and map_from_column as well.
         * add new method column_is_boolean() to match RDBO::MoreHelpers
 
-
-
-
-
+0.05    26 Aug 2008
+        * change 'use base' to 'use parent' to reduce dependencies
 

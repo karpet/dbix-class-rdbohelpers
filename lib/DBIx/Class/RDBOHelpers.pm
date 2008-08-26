@@ -2,11 +2,11 @@ package DBIx::Class::RDBOHelpers;
 
 use warnings;
 use strict;
-use parent 'DBIx::Class';
+use base 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 NAME
 
