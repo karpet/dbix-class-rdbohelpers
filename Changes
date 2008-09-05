@@ -19,3 +19,5 @@ Revision history for DBIx-Class-RDBOHelpers
 0.05    26 Aug 2008
         * change 'use base' to 'use parent' to reduce dependencies
 
+0.06    5 Sept 2008
+        * fix column_is_boolean() to detect if has_column() first

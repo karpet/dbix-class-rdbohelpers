@@ -6,7 +6,7 @@ use base 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -256,7 +256,10 @@ sub relationship_info {
 =head2 column_is_boolean( I<column_name> )
 
 Returns true if the column info for I<column_name> indicates it is a boolean
-type.
+type. 
+
+Will return false if I<column_name> is not a column or has no
+explicit data_type or if data_type is not 'boolean'.
 
 =cut
 
@@ -264,6 +267,8 @@ sub column_is_boolean {
     my $self     = shift;
     my $col_name = shift;
     croak "column_name required" unless defined $col_name;
+
+    return 0 unless $self->has_column($col_name);
 
     my $col_info = $self->column_info($col_name);
     if ( exists $col_info->{data_type}
