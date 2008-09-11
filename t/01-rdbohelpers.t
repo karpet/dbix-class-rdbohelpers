@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 24;
+use Test::More tests => 25;
 use lib 't/lib';
 use Data::Dump qw( dump );
 use DBICx::TestDatabase;
@@ -38,7 +38,7 @@ is_deeply(
     "cd_tracks deep hash structure"
 );
 
-ok( my $track = MyDBIC::Schema->class('Track'), "Track class" );
+ok( my $track   = MyDBIC::Schema->class('Track'),         "Track class" );
 ok( my $m2m_cds = $track->relationship_info('track_cds'), "track_cds" );
 ok( exists $m2m_cds->{m2m}, "track_cds is a m2m" );
 is_deeply(
@@ -121,6 +121,34 @@ ok( my $cd2 = $schema->resultset('Cd')->find( { cdid => 2 } ), "fetch cd 2" );
 is( $cd2->has_related('tracks'), 2, $cd2->title . " has 2 tracks" );
 
 # column_is_boolean
-ok( $cd1->column_is_boolean('test_boolean'), "column_is_boolean");
-ok( !$cd1->column_is_boolean('artist'), "column_is_boolean");
+ok( $cd1->column_is_boolean('test_boolean'), "column_is_boolean" );
+ok( !$cd1->column_is_boolean('artist'),      "column_is_boolean" );
 
+# m2m to itself must be tested in a resultsource object not class
+is_deeply(
+    $cd1->relationship_info('relationships'),
+    {   attrs => {
+            accessor       => "multi",
+            cascade_copy   => 1,
+            cascade_delete => 1,
+            join_type      => "LEFT",
+        },
+        class => "MyDBIC::Schema::CdToItself",
+        cond  => { "foreign.cdid_one" => "self.cdid" },
+        m2m   => {
+            class           => "MyDBIC::Schema::Cd",
+            class_column    => "cdid",
+            foreign_class   => "MyDBIC::Schema::Cd",
+            foreign_column  => "cdid",
+            map_class       => "MyDBIC::Schema::CdToItself",
+            map_from        => "cd",
+            map_from_column => "cdid_one",
+            map_to          => "related",
+            map_to_column   => "cdid_two",
+            method_name     => "related_cds",
+            rel_name        => "relationships",
+        },
+        source => "MyDBIC::Schema::CdToItself",
+    },
+    "m2m to itself"
+);

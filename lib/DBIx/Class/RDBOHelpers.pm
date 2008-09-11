@@ -6,7 +6,7 @@ use base 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 NAME
 
@@ -197,9 +197,9 @@ sub relationship_info {
         for my $map_rel ( $m2m{map_class}->relationships ) {
             my $map_rel_info = $m2m{map_class}->relationship_info($map_rel);
 
-          # warn
-          #     "map_rel_info for class $class with map_class $m2m{map_class}"
-          #     . dump $map_rel_info;
+#warn
+#    "$rel_name : map_rel_info for class $class with map_class $m2m{map_class}"
+#    . dump $map_rel_info;
 
             # gah. this is broken for Catalyst because each ResultSource
             # is blessed into a Model::Schema::$moniker class
@@ -207,37 +207,44 @@ sub relationship_info {
 
             #warn "class->isa  $class -> $map_rel_info->{class}";
 
-            if ( $class->isa( $map_rel_info->{class} ) ) {
-
-                #warn "isa == YES";
-
-                #warn "getting class_column and map_from for "
-                #    . dump $map_rel_info;
-                for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
-                    my $local = $map_rel_info->{cond}->{$foreign};
-                    $local   =~ s/^self\.//;
-                    $foreign =~ s/^foreign\.//;
-                    $m2m{class_column}    = $foreign;
-                    $m2m{map_from}        = $map_rel;
-                    $m2m{map_from_column} = $local;
-                    last;    # only deal with first one defined.
-                }
-
+            if ( scalar keys %{ $map_rel_info->{cond} } > 1 ) {
+                warn
+                    "multi-key conditions for m2m relationships are not yet supported";
+                next;
             }
-            else {
-                my $forclass = $map_rel_info->{class};
 
-                #warn "$class foreign class == $forclass"
-                #. dump $map_rel_info;
-                $m2m{foreign_class} = $forclass;
-                for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
-                    my $local = $map_rel_info->{cond}->{$foreign};
-                    $local   =~ s/^self\.//;
-                    $foreign =~ s/^foreign\.//;
+            for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
+                my $local = $map_rel_info->{cond}->{$foreign};
+                $local   =~ s/^self\.//;
+                $foreign =~ s/^foreign\.//;
+
+                if ( $class->isa( $map_rel_info->{class} ) ) {
+
+                    # because this might be a many2many related to itself,
+                    # we double check whether map_from eq map_to
+                    # and skip on a match
+
+                    if ( $map_rel eq $m2m{map_to} ) {
+                        $m2m{foreign_class}  = $map_rel_info->{class};
+                        $m2m{foreign_column} = $foreign;
+                        $m2m{map_to_column}  = $local;
+                    }
+                    else {
+                        $m2m{class_column}    = $foreign;
+                        $m2m{map_from}        = $map_rel;
+                        $m2m{map_from_column} = $local;
+                    }
+
+                }
+                else {
+                    $m2m{foreign_class}  = $map_rel_info->{class};
                     $m2m{foreign_column} = $foreign;
                     $m2m{map_to_column}  = $local;
-                    last;    # only deal with first one defined.
                 }
+
+                # only deal with first one defined.
+                # TODO could there be more?
+                last;
             }
 
         }

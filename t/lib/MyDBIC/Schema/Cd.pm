@@ -22,4 +22,10 @@ __PACKAGE__->many_to_many(
     'track'
 );
 
+# relationships
+__PACKAGE__->has_many(
+    relationships => 'MyDBIC::Schema::CdToItself' => 'cdid_one' );
+__PACKAGE__->many_to_many( related_cds => 'relationships' => 'related' );
+
+
 1;
