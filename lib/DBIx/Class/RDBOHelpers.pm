@@ -6,7 +6,7 @@ use base 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -285,6 +285,35 @@ sub column_is_boolean {
     }
 
     return 0;
+}
+
+=head2 unique_value
+
+Returns the first single-column unique value from the object by default.
+This is intended for the common case where you use a serial integer as
+the primary key but want to display a more human-friendly value
+programmatically, like a name.
+
+If no unique single-column values are found, returns the primary_columns()
+values joined with by a single space.
+
+=cut
+
+sub unique_value {
+    my $self = shift;
+
+    # find the first unique single-col column of type char/varchar
+    for my $constraint ( $self->unique_constraint_names ) {
+        my @u = $self->unique_constraint_columns($constraint);
+        next if @u > 1;
+        my $method = $u[0];
+        return $self->$method;
+    }
+
+    # couldn't find a unique column. use PK
+    my @pk = $self->primary_columns;
+    return join( ' ', map { $self->$_ } @pk );
+
 }
 
 1;

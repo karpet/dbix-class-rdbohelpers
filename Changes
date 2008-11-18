@@ -25,3 +25,6 @@ Revision history for DBIx-Class-RDBOHelpers
 0.07    10 Sept 2008
         * fix case in m2m detection where a class is mapped to itself
 
+0.08    17 Nov 2008
+        * add unique_value() method similar to Rose::DBx::Object::MoreHelpers
+

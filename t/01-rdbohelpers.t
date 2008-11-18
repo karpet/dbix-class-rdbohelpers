@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 25;
+use Test::More tests => 27;
 use lib 't/lib';
 use Data::Dump qw( dump );
 use DBICx::TestDatabase;
@@ -152,3 +152,7 @@ is_deeply(
     },
     "m2m to itself"
 );
+
+# unique_value
+is( $cd1->unique_value, '1', "unique_value" );
+is( $cd1->artist->unique_value, 'bruce cockburn', "artist unique value" );
