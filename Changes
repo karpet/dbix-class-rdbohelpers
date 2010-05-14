@@ -28,3 +28,6 @@ Revision history for DBIx-Class-RDBOHelpers
 0.08    17 Nov 2008
         * add unique_value() method similar to Rose::DBx::Object::MoreHelpers
 
+0.09    13 May 2010
+        * fix primary_key_uri_escaped per Rose::DBx::Object::MoreHelpers 0.07.
+

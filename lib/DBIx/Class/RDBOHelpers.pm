@@ -6,7 +6,7 @@ use base 'DBIx::Class';
 use Carp;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 NAME
 
@@ -109,13 +109,14 @@ sub primary_key_uri_escaped {
     my @esc;
     for my $v (@vals) {
         $v = '' unless defined $v;
-        $v =~ s/;/ sprintf( "%%%02X", ';' ) /eg;
+        $v =~ s/;/\%3b/g;
         push @esc, $v;
     }
     if ( !grep { length($_) } @esc ) {
         return 0;
     }
     my $pk = join( ';;', @esc );
+    $pk =~ s!/!\%2f!g;
     return $pk;
 }
 
