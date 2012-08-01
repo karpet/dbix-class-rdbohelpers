@@ -10,6 +10,7 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
+        'DBIx::Class' => 0,
         'DBICx::TestDatabase' => 0,
         'Data::Dump' => 0,
 
