@@ -23,6 +23,7 @@ WriteMakefile(
                 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=DBIx-Class-RDBOHelpers',
             repository => 'https://github.com/karpet/dbix-class-rdbohelpers',
         },
-        } dist => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'DBIx-Class-RDBOHelpers-*' },
+    },
+    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean => { FILES    => 'DBIx-Class-RDBOHelpers-*' },
 );
