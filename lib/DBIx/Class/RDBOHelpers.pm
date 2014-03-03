@@ -216,7 +216,7 @@ sub relationship_info {
 
             for my $foreign ( keys %{ $map_rel_info->{cond} } ) {
                 my $local = $map_rel_info->{cond}->{$foreign};
-                $local   =~ s/^self\.//;
+                $local =~ s/^self\.//;
                 $foreign =~ s/^foreign\.//;
 
                 if ( $class->isa( $map_rel_info->{class} ) ) {
@@ -303,16 +303,21 @@ values joined with by a single space.
 sub unique_value {
     my $self = shift;
 
+    my @pk = $self->primary_columns;
+    my %is_pk = map { $_ => 1 } @pk;
+
     # find the first unique single-col column of type char/varchar
     for my $constraint ( $self->unique_constraint_names ) {
         my @u = $self->unique_constraint_columns($constraint);
         next if @u > 1;
-        my $method = $u[0];
-        return $self->$method;
+        for my $col (@u) {
+            next if $is_pk{$col};
+            my $method = $col;
+            return $self->$method;
+        }
     }
 
     # couldn't find a unique column. use PK
-    my @pk = $self->primary_columns;
     return join( ' ', map { $self->$_ } @pk );
 
 }

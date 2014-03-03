@@ -155,4 +155,5 @@ is_deeply(
 
 # unique_value
 is( $cd1->unique_value, '1', "unique_value" );
+#diag( dump $cd1->artist );
 is( $cd1->artist->unique_value, 'bruce cockburn', "artist unique value" );
